@@ -1,2 +1,6 @@
 # swida_assignment
-Swida assignment
+
+For start app enter command 
+
+docker-compose up -d
+

@@ -1,0 +1,60 @@
+{% extends "polls/base.html" %}
+{% block content %}
+    <h1>{{ question.question_text }}</h1>
+
+    <ul>
+    {% for choice in question.choice_set.all %}
+        <li>{{ choice.choice_text }} -- {{ choice.votes }} vote{{ choice.votes|pluralize }}</li>
+    {% endfor %}
+    </ul>
+
+    <ul id="authors"></ul>
+    <a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+    <div id="chartContainer"></div>
+
+    <script>
+        $(document).ready(function(){
+            const url = 'http://localhost:8000/api/{{ question.id }}/results/?format=json';
+
+            fetch(url)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    let dataResults = [];
+                    data.map(function(data) {
+                        dataResults.push({
+                            'label': data.choice_text,
+                            'y': data.votes
+                        })
+                        showChart(dataResults)
+                    });
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+            function showChart(data)
+            {
+                var options = {
+                    animationEnabled: true,
+                    title: {
+                        text: "Vote Results"
+                    },
+                    axisY: {
+                        title: "Vote Results",
+                        suffix: "%"
+                    },
+                    axisX: {
+                        title: "Results"
+                    },
+                    data: [{
+                        type: "column",
+                        dataPoints: data
+                    }]
+                };
+                $("#chartContainer").CanvasJSChart(options);
+            }
+        });
+    </script>
+{% endblock %}
